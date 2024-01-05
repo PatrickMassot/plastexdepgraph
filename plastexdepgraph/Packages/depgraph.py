@@ -42,7 +42,7 @@ want to influence the dependency graph.
 """
 import string
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from jinja2 import Template
 from pygraphviz import AGraph
@@ -224,6 +224,28 @@ def find_proved_thm(proof) -> Optional[Environment]:
         node = node.previousSibling
     return None
 
+LINK_TPL = Template("""
+    <a class="icon proof" href="{{ obj.url }}">#</a>
+""")
+
+PROVED_BY_TPL = Template("""
+    {% if obj.userdata.proved_by %}
+    <a class="icon proof" href="{{ obj.userdata.proved_by.url }}">{{ icon('cogs') }}</a>
+    {% endif %}
+""")
+
+USES_TPL = Template("""
+    {% if obj.userdata.uses %}
+    <button class="modal">{{ icon('mindmap') }}</button>
+    {% call modal(context.terms.get('Uses', 'Uses')) %}
+        <ul class="uses">
+          {% for used in obj.userdata.uses %}
+          <li><a href="{{ used.url }}">{{ used.caption }} {{ used.ref }}</a></li>
+          {% endfor %}
+        </ul>
+    {% endcall %}
+    {% endif %}
+""")
 
 def ProcessOptions(options, document):
     """This is called when the package is loaded."""
@@ -315,7 +337,7 @@ def ProcessOptions(options, document):
                              context=document.context,
                              title=title,
                              legend=document.userdata['dep_graph']['legend'],
-                             extra_modal_links=document.userdata['dep_graph']['extra_modal_links'],
+                             extra_modal_links=document.userdata['dep_graph']['extra_modal_links_tpl'],
                              document=document,
                              config=document.config).dump(graph_target)
         return files
@@ -332,6 +354,11 @@ def ProcessOptions(options, document):
     thm_types = [thm.strip()
                  for thm in options.get('thms', DEFAULT_TYPES).split('+')]
     document.userdata['dep_graph']['thm_types'] = thm_types
+
+    document.userdata['thm_header_extras_tpl'] = []
+    document.userdata['thm_header_hidden_extras_tpl'] = [LINK_TPL,
+                                                         PROVED_BY_TPL,
+                                                         USES_TPL]
 
     document.userdata['dep_graph']['legend'] = [('Boxes', 'definitions'), ('Ellipses', 'theorems and lemmas')]
     document.userdata['dep_graph']['extra_modal_links'] = []
