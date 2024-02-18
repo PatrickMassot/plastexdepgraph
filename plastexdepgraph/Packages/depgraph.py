@@ -24,10 +24,16 @@ want to influence the dependency graph.
   (see https://graphviz.org/doc/info/shapes.html).
   By default, everything uses an ellipse except definition which uses a box.
 
-* document.userdata['dep_graph']['colorizer'] and
-  document.userdata['dep_graph']['fillcolorizer'] can be functions taking as
-  input a plasTeX node and outputting CSS colors for the boundary and interior
-  of graph nodes respectively.
+* document.userdata['dep_graph']['colorizer'] can be a function taking as input
+  a plasTeX node and outputting a CSS color for the boundary of graph nodes.
+
+* document.userdata['dep_graph']['fillcolorizer'] can be a function taking as
+  input a plasTeX node and outputting a CSS color for the interior of graph
+  nodes.
+
+* document.userdata['dep_graph']['stylerizer'] can be a function taking as input
+  a plasTeX node and outputting a graphviz style
+  (see https://graphviz.org/docs/attr-types/style/).
 
 * document.userdata['dep_graph']['legend'] can be a list whose entries are pairs
   made of a visual description and an explanation.
@@ -116,17 +122,20 @@ class DepGraph():
             fillcolor = self.document.userdata['dep_graph'].get('fillcolorizer', lambda x: '')(node)
 
             if fillcolor:
+                style = self.document.userdata['dep_graph'].get('stylerizer', lambda x: 'filled')(node)
+
                 graph.add_node(node.id,
                                label=node.id.split(':')[-1],
                                shape=shapes.get(item_kind(node), 'ellipse'),
-                               style='filled',
+                               style=style,
                                color=color,
                                fillcolor=fillcolor)
             else:
+                style = self.document.userdata['dep_graph'].get('stylerizer', lambda x: '')(node)
                 graph.add_node(node.id,
                                label=node.id.split(':')[-1],
                                shape=shapes.get(item_kind(node), 'ellipse'),
-                               style='',
+                               style=style,
                                color=color)
         for s, t in self.edges:
             if s in self.nodes and t in self.nodes:
