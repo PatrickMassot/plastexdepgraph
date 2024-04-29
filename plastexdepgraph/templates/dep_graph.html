@@ -111,13 +111,15 @@ graphContainer.graphviz({useWorker: true})
     .renderDot(`{{ dot.replace('\n','') }}`)
     .on("end", interactive);
 
+latexLabelEscaper = function(label) {
+  return label.replace(/\./g, '\\.').replace(/:/g, '\\:')
+}
+
 clickNode = function() {
   $("#statements div").hide()
   var node_id = $('text', this).text();
-    console.log(node_id);
-  console.log('#'+node_id.replace(':', '\\:'));
   $('.thm').hide();
-  $('#'+node_id.replace(':', '\\:')).show().children().show();
+  $('#'+latexLabelEscaper(node_id)).show().children().show();
 }
 function interactive() {
     $("span#legend_title").on("click", function () {
@@ -130,7 +132,7 @@ function interactive() {
            var title = d3.select(this).selectAll('title').text().trim();
            $('#statements > div').hide()
            $('.thm').hide();
-           $('#'+title.replace(':', '\\:')+'_modal').show().children().show().children().show();
+           $('#'+latexLabelEscaper(title)+'_modal').show().children().show().children().show();
            $('#statements').show()
         });
 
