@@ -6,7 +6,10 @@ to build dependency graphs.
 Needs graphviz and its dev libraries. If you have a user-friendly OS, it is
 as simple as `sudo apt install graphviz libgraphviz-dev`. See https://pygraphviz.github.io/documentation/stable/install.html otherwise.
 
-You can use this package with plasTeX using `\usepackage{depgraph}`
+You can use this package with plasTeX using `\usepackage{depgraph}`.
+Note that the
+[Lean blueprint package](https://github.com/PatrickMassot/leanblueprint)
+automatically loads this packages and transmit options.
 
 ## Options
 
