@@ -346,7 +346,7 @@ def ProcessOptions(options, document):
                              context=document.context,
                              title=title,
                              legend=document.userdata['dep_graph']['legend'],
-                             extra_modal_links=document.userdata['dep_graph']['extra_modal_links_tpl'],
+                             extra_modal_links=document.userdata['dep_graph'].get('extra_modal_links_tpl', []),
                              document=document,
                              config=document.config).dump(graph_target)
         return files
