@@ -7,6 +7,8 @@ Needs graphviz and its dev libraries. If you have a user-friendly OS, it is
 as simple as `sudo apt install graphviz libgraphviz-dev`. See https://pygraphviz.github.io/documentation/stable/install.html otherwise.
 
 You can use this package with plasTeX using `\usepackage{depgraph}`.
+Do not forget to tell plasTeX to use this plugin. From the command line, this
+would mean running `plastex --plugins=plastexdepgraph test.tex` for instance.
 Note that the
 [Lean blueprint package](https://github.com/PatrickMassot/leanblueprint)
 automatically loads this packages and transmit options.
@@ -66,3 +68,37 @@ does that.
   templates used to render extra links at the bottom of the modal appearing
   when clicking on graph nodes.
   The default value is an empty list.
+
+## Minimal example
+
+The procedure to create a minimal example of using this plugin is:
+
+* Install the required graphviz packages (say using  `sudo apt install graphviz libgraphviz-dev`)
+* Install this python package (say using `pip install plastexdepgraph` which
+will also install the main platex program).
+* Create a TeX file `test.tex` with content
+
+  ```latex
+  \documentclass{article}
+  \usepackage{depgraph}
+
+  \newtheorem{definition}{Definition}
+
+  \begin{document}
+  \section{Test}
+    
+  \begin{definition}
+    \label{def:one} My first definition.
+  \end{definition}
+
+  \begin{definition}
+    \uses{def:one}
+    \label{def:two} My second definition.
+  \end{definition}
+  \end{document}
+  ```
+* Run `plastex --plugins=plastexdepgraph test.tex`
+* Serve the content of the newly created `test` folder, say with `python -m
+http.server` ran from that folder (simply opening the html files as local files without going through a web server won’t work).
+
+Note the `\section` is here to ensure there will be some table of contents. Otherwise the dependency graph will be generated but you won’t see any link.
