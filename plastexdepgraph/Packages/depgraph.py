@@ -269,7 +269,7 @@ def ProcessOptions(options, document):
     jobname = document.userdata['jobname']
     outdir = document.config['files']['directory']
     outdir = string.Template(outdir).substitute({'jobname': jobname})
-    
+
     def update_proofs() -> None:
         for proof in document.getElementsByTagName('proof'):
             proved = proof.userdata.setdefault('proves', find_proved_thm(proof))
