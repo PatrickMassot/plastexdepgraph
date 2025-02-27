@@ -49,6 +49,7 @@ want to influence the dependency graph.
 import string
 from pathlib import Path
 from typing import Optional
+from dot2tex import dot2tex
 
 from jinja2 import Template
 from pygraphviz import AGraph
@@ -328,6 +329,16 @@ def ProcessOptions(options, document):
         graph_tpl = Template(default_tpl_path.read_text())
 
     reduce_graph = not options.get('nonreducedgraph', False)
+    
+    def dot_to_tikz(dot_filename):
+        tikz_filename = dot_filename.replace('.dot', '.tex')
+        with open(dot_filename, 'r') as dot_file:
+            dot_content = dot_file.read()
+        tikz_code = dot2tex(dot_content, format='tikz', crop=True)
+        with open(tikz_filename, 'w') as tikz_file:
+            tikz_file.write(tikz_code)
+        log.info(f"TikZ-picture file saved: {tikz_filename}")
+        return tikz_filename
 
     def make_graph_html(document):
         files = []
@@ -341,6 +352,11 @@ def ProcessOptions(options, document):
             dot = graph.to_dot(document.userdata['dep_graph'].get('shapes', {'definition': 'box'}))
             if reduce_graph:
                 dot = dot.tred()
+            dot_filename = f"{jobname}_dep_graph.dot"
+            with open(dot_filename, 'w') as dot_file:
+                dot_file.write(dot.to_string())
+            log.info(f"DOT file saved: {dot_filename}")
+            tikz_filename = dot_to_tikz(dot_filename)
             graph_tpl.stream(graph=graph,
                              dot=dot.to_string(),
                              context=document.context,
@@ -371,4 +387,3 @@ def ProcessOptions(options, document):
 
     document.userdata['dep_graph']['legend'] = [('Boxes', 'definitions'), ('Ellipses', 'theorems and lemmas')]
     document.userdata['dep_graph']['extra_modal_links'] = []
-
